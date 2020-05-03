@@ -13,6 +13,11 @@ print(datos)
 n_atributos=datos.shape[1]-1
 
 dimensiones=int(input("Introduce el número de PCA (máximo {}): ".format(n_atributos)))
+if(dimensiones<1):
+    dimensiones=1
+else:
+    if(dimensiones>n_atributos):
+        dimensiones=n_atributos
 pca=PCA(n_components=dimensiones)
 atributos=datos.loc[:,0:n_atributos].values
 
