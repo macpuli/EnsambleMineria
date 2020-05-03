@@ -67,11 +67,16 @@ precisionBAYES=algoritmoNaiveBayes.score(X_train, y_train)
 print('Precisión NaiveBayes: {}'.format(precisionBAYES))
 print()
 
+from statistics import mode
+
 pred_Ensamble=[]
 for i in range(len(y_test)):
     pred1=Y_pred_KNN[i]
     pred2=Y_pred_PTRON[i]
     pred3=Y_pred_BAYES[i]
+    predicciones = [pred1, pred2, pred3]
+    pred_Ensamble.insert(i,mode(predicciones))
+    '''
     if(pred1==pred2 & pred1==pred3):
         pred_Ensamble.insert(i,pred1)
     else:
@@ -90,7 +95,8 @@ for i in range(len(y_test)):
                             pred_Ensamble.insert(i, pred2)
                         else:
                             if(masPreciso==precisionBAYES):
-                                pred_Ensamble.insert(i, pred3)
+                                pred_Ensamble.insert(i, pred3)    
+    '''
     
 prediccionesEnsamble = np.asarray(pred_Ensamble)    
 
@@ -102,7 +108,10 @@ for e in range(len(y_test)):
     if(y_test[e]==prediccionesEnsamble[e]):
         correctos+=1
 
-print('Correctos: {}/{} '.format(correctos,len(y_test)))
 precisionEnsamble=correctos/len(y_test)
+
+from sklearn.metrics import confusion_matrix
+print("Matriz de confusión del ensamble:")
+print(confusion_matrix(y_test, prediccionesEnsamble))
 print('Precisión ensamble: {}'.format(precisionEnsamble))
 print()
