@@ -151,7 +151,6 @@ for train_index, test_index in skf.split(X, y):
     for e in range(len(y_test)):
         rand1=random.uniform(-0.1, 0.1)
         tablaComparacion = tablaComparacion.append({'Real': y_test[e], 'Prediccion': prediccionesEnsamble[e]+rand1}, ignore_index=True)
-        #tablaComparacion = tablaComparacion.append({'Prediccion': prediccionesEnsamble[e]}, ignore_index=True)
         if(y_test[e]==prediccionesEnsamble[e]):
             correctos+=1
 
