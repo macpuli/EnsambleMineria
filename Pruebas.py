@@ -3,15 +3,17 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 import linecache as lc
 from sklearn.decomposition import PCA
-
+import linecache
 #Lectura del archivo
 nombreArchivo=input("Introduce el nombre del archivo: ")
+clases=0
 try:
+    clases=linecache.getline(nombreArchivo, 3)
     datos=pd.read_csv(nombreArchivo, skiprows=3, index_col=False, header=None)
 except:
     print("No se encontró el archivo")
     exit()
-
+nClases=(int(clases))
 #print("\nDatos leídos:")
 #print((datos))
 
@@ -91,6 +93,8 @@ column_names = ["Real", "Prediccion"]
 tablaComparacion = pd.DataFrame(columns = column_names)
 
 k=0
+matrizEnsambleL=[[0] * nClases] * nClases 
+matrizEnsamble=np.array(matrizEnsambleL)
 
 import seaborn as sb
 from matplotlib import pyplot as plt
@@ -149,7 +153,7 @@ for train_index, test_index in skf.split(X, y):
 
     correctos=0
     for e in range(len(y_test)):
-        rand1=random.uniform(-0.1, 0.1)
+        rand1=random.uniform(-0.25, 0.25)
         tablaComparacion = tablaComparacion.append({'Real': y_test[e], 'Prediccion': prediccionesEnsamble[e]+rand1}, ignore_index=True)
         if(y_test[e]==prediccionesEnsamble[e]):
             correctos+=1
@@ -157,7 +161,14 @@ for train_index, test_index in skf.split(X, y):
     precisionEnsamble=correctos/len(y_test)
 
     #print("Matriz de confusión del ensamble (en el pliegue):")
-    #print(confusion_matrix(y_test, prediccionesEnsamble))
+    matrizPliegue=confusion_matrix(y_test, prediccionesEnsamble)
+    #print(matrizPliegue)
+    for i in range(len(matrizEnsamble)):    
+    # iterate through columns 
+        for j in range(len(matrizEnsamble[0])): 
+            matrizEnsamble[i][j] = matrizEnsamble[i][j] + matrizPliegue[i][j] 
+
+    #print(matrizEnsamble)
     print('Precisión ensamble: {}'.format(precisionEnsamble))
     precisionPromEnsamble.append(precisionEnsamble)
     print()
@@ -168,10 +179,41 @@ print('Perceptrón: {0: .3f}'.format(np.mean(precisionPromPTRON)))
 print('NaiveBayes: {0: .3f}'.format(np.mean(precisionPromBAYES)))
 print('Ensamble: {0: .3f}'.format(np.mean(precisionPromEnsamble)))
 
-sb.stripplot(x = "Real", y = "Prediccion", data = tablaComparacion, jitter=True, size=4, linewidth=1)
+sb.stripplot(x = "Real", y = "Prediccion",data = tablaComparacion, jitter=.35, size=4, linewidth=1)
 sb.despine()
-plt.title("Gráfica de dispersión")
-plt.grid(b=True)
-#colors = np.random.rand(len(atributos))
-#plt.scatter(x=tablaComparacion['Real'],y=tablaComparacion['Prediccion'], c=colors,linewidths=1, s=32)
+
+plt.title("Resultados del ensamble")
+#plt.grid(b=True)
+plt.xlabel("Clases reales")
+plt.ylabel("Clases predichas")
+print("Matriz de confusión del ensamble:")
+print(matrizEnsamble)
+'''
+size=len(matrizEnsamble)
+for x in range(int(size / 2)):
+    for y in range(x, size - x - 1):
+        nx = size - 1 - x
+        ny = size - 1 - y
+
+        swapVal = matrizEnsamble[x][y]
+        matrizEnsamble[x][y] = matrizEnsamble[y][nx]
+        matrizEnsamble[y][nx] = matrizEnsamble[nx][ny]
+        matrizEnsamble[nx][ny] = matrizEnsamble[ny][x]
+        matrizEnsamble[ny][x] = swapVal
+        '''
+
+fig = plt.gcf()
+fig.canvas.set_window_title('Gráfica de dispersión - Ensamble')
+
+for i in range(len(matrizEnsamble)):
+    for j in range(len(matrizEnsamble)):
+        text = plt.text(i, j, matrizEnsamble[i, j],
+                       ha="center", va="center", color="black", size=9,
+                       bbox=dict(boxstyle="square",
+                   ec='white',
+                   fc='white',
+                   pad=0.09,
+                   alpha=0.75
+                   )
+         )
 plt.show()
