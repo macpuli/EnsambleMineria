@@ -188,6 +188,12 @@ plt.xlabel("Clases reales")
 plt.ylabel("Clases predichas")
 print("Matriz de confusión del ensamble:")
 print(matrizEnsamble)
+
+etiquetas=[]
+for i in range(nClases):
+    etiquetas.append(i)
+
+plt.xticks(np.arange(nClases),etiquetas)
 '''
 size=len(matrizEnsamble)
 for x in range(int(size / 2)):
