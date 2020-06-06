@@ -1,9 +1,19 @@
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd 
-import linecache as lc
+#import linecache as lc
 from sklearn.decomposition import PCA
 import linecache
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import linear_model
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import StratifiedKFold
+from statistics import mode
+from sklearn.metrics import confusion_matrix
+import seaborn as sb
+from matplotlib import pyplot as plt
+import random
 #Lectura del archivo
 nombreArchivo=input("Introduce el nombre del archivo: ")
 clases=0
@@ -43,9 +53,6 @@ componentesPrincipales=pd.concat([pd.DataFrame(data=reduccion,columns=columnas),
 
 #print(componentesPrincipales)
 
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-
 X = np.array(componentesPrincipales.drop(['Clase'], 1))
 y = np.array(componentesPrincipales['Clase'])
 
@@ -58,18 +65,9 @@ except:
     exit()
 
 algoritmoKNN = KNeighborsClassifier(n_neighbors=vecinos)
-
-from sklearn import linear_model
 algoritmoPerceptron = linear_model.Perceptron()
-
-from sklearn.naive_bayes import GaussianNB
 algoritmoNaiveBayes = GaussianNB()
 
-from sklearn.model_selection import StratifiedKFold
-
-from statistics import mode
-
-from sklearn.metrics import confusion_matrix
 # creando pliegues
 try:
     pliegues=int(input("Introduce el número de pliegues para la validación cruzada: "))
@@ -96,10 +94,6 @@ k=0
 matrizEnsambleL=[[0] * nClases] * nClases 
 matrizEnsamble=np.array(matrizEnsambleL)
 
-import seaborn as sb
-from matplotlib import pyplot as plt
-import random
-
 for train_index, test_index in skf.split(X, y):
     k+=1
     #Impresión de los índices por pliegue
@@ -116,7 +110,7 @@ for train_index, test_index in skf.split(X, y):
     #print("Predicciones con kNN:")
     #print(Y_pred_KNN)
     precisionKNN=algoritmoKNN.score(X_train, y_train)
-    print('Precisión kNN (Vecinos más cercanos): {}'.format(precisionKNN))
+    print('Precisión kNN (Vecinos más cercanos): {0: .3f}%'.format(precisionKNN*100))
     precisionPromkNN.append(precisionKNN)
     #print()
 
@@ -125,7 +119,7 @@ for train_index, test_index in skf.split(X, y):
     #print("Predicciones con Perceptron:")
     #print(Y_pred_PTRON)
     precisionPTRON=algoritmoPerceptron.score(X_train, y_train)
-    print('Precisión Perceptron: {}'.format(precisionPTRON))
+    print('Precisión Perceptron: {0: .3f}%'.format(precisionPTRON*100))
     precisionPromPTRON.append(precisionPTRON)
     #print()
 
@@ -134,7 +128,7 @@ for train_index, test_index in skf.split(X, y):
     #print("Predicciones con NaiveBayes:")
     #print(Y_pred_BAYES)
     precisionBAYES=algoritmoNaiveBayes.score(X_train, y_train)
-    print('Precisión NaiveBayes: {}'.format(precisionBAYES))
+    print('Precisión NaiveBayes: {0: .3f}%'.format(precisionBAYES*100))
     precisionPromBAYES.append(precisionBAYES)
     #print()
     
@@ -169,15 +163,15 @@ for train_index, test_index in skf.split(X, y):
             matrizEnsamble[i][j] = matrizEnsamble[i][j] + matrizPliegue[i][j] 
 
     #print(matrizEnsamble)
-    print('Precisión ensamble: {}'.format(precisionEnsamble))
+    print('Precisión ensamble: {0: .3f}%'.format(precisionEnsamble*100))
     precisionPromEnsamble.append(precisionEnsamble)
     print()
 
 print("Precisiones promedio")
-print('kNN: {0: .3f}'.format(np.mean(precisionPromkNN)))
-print('Perceptrón: {0: .3f}'.format(np.mean(precisionPromPTRON)))
-print('NaiveBayes: {0: .3f}'.format(np.mean(precisionPromBAYES)))
-print('Ensamble: {0: .3f}'.format(np.mean(precisionPromEnsamble)))
+print('kNN: {0: .3f}%'.format(np.mean(precisionPromkNN)*100))
+print('Perceptrón: {0: .3f}%'.format(np.mean(precisionPromPTRON)*100))
+print('NaiveBayes: {0: .3f}%'.format(np.mean(precisionPromBAYES)*100))
+print('Ensamble: {0: .3f}%'.format(np.mean(precisionPromEnsamble)*100))
 
 sb.stripplot(x = "Real", y = "Prediccion",data = tablaComparacion, jitter=.35, size=4, linewidth=1)
 sb.despine()
@@ -194,20 +188,6 @@ for i in range(nClases):
     etiquetas.append(i)
 
 plt.xticks(np.arange(nClases),etiquetas)
-'''
-size=len(matrizEnsamble)
-for x in range(int(size / 2)):
-    for y in range(x, size - x - 1):
-        nx = size - 1 - x
-        ny = size - 1 - y
-
-        swapVal = matrizEnsamble[x][y]
-        matrizEnsamble[x][y] = matrizEnsamble[y][nx]
-        matrizEnsamble[y][nx] = matrizEnsamble[nx][ny]
-        matrizEnsamble[nx][ny] = matrizEnsamble[ny][x]
-        matrizEnsamble[ny][x] = swapVal
-        '''
-
 fig = plt.gcf()
 fig.canvas.set_window_title('Gráfica de dispersión - Ensamble')
 
