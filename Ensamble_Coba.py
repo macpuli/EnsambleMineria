@@ -188,6 +188,7 @@ for i in range(nClases):
     etiquetas.append(i)
 
 plt.xticks(np.arange(nClases),etiquetas)
+plt.yticks(np.arange(nClases),etiquetas)
 fig = plt.gcf()
 fig.canvas.set_window_title('Gráfica de dispersión - Ensamble')
 
